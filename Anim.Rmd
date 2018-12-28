@@ -16,7 +16,7 @@ library(tweenr)
 
 set.seed(12)
 x <- round(rnorm(50, 10, 2))
-df <- data.frame(x = x, y = 17)
+df <- data.frame(x = x, y = 23)
 dfs <- list(df)
 for(i in seq_len(nrow(df))) {
     dftemp <- tail(dfs, 1)
@@ -26,28 +26,44 @@ for(i in seq_len(nrow(df))) {
 dfs <- append(dfs, dfs[rep(length(dfs), 3)])
 dft <- tween_states(dfs, 10, 1, 'cubic-in', 600)
 dft$y <- dft$y - 0.5
-dft <- dft[dft$y != 17, ]
-dft$type <- 'Animate'
+dft <- dft[dft$y != 23, ]
+dft$type <- 'Island #1'
 
-p <- dft %>%
+x2 <- round(rnorm(50, 18, 1.2))
+df2 <- data.frame(x = x2, y = 23)
+dfs2 <- list(df2)
+for(i in seq_len(nrow(df2))) {
+    dftemp <- tail(dfs2, 1)
+    dftemp[[1]]$y[i] <- sum(dftemp[[1]]$x[seq_len(i)] == dftemp[[1]]$x[i])
+    dfs2 <- append(dfs2, dftemp)
+}
+dfs2 <- append(dfs2, dfs2[rep(length(dfs2), 3)])
+dft2 <- tween_states(dfs2, 10, 1, 'cubic-in', 600)
+dft2$y <- dft2$y - 0.5
+dft2 <- dft2[dft2$y != 23, ]
+dft2$type <- 'Island #2'
+dd <- rbind(dft, dft2)
+
+p <- dd %>%
   plot_ly(
     x = ~x, 
     y = ~y,
     frame = ~.frame, 
-    marker = list(size = 20,
-                       color = 'rgba(250, 180, 70, .9)',
-                       line = list(color = 'rgba(152, 0, 0, .8)',
-                                   width = 4))
-  ) %>% 
+    color = ~type,
+    colors = c("green3", "turquoise3"),
+    marker = list(size = 16), 
+    colorbar = FALSE
+  )  %>% 
+  config(displayModeBar = F) %>%
   layout(
-    xaxis = list(range=c(3,17),
+    xaxis = list(range=c(4,23),
       title = "Teacup Giraffe heights",
       zeroline = F
     ),
-    yaxis = list(range=c(-0.5,15),
+    yaxis = list(range=c(-0.5,21),
       title = "Frequency",
       zeroline = F
-    )
+    ),legend = list(x = 0.075, y = 0.91)
   ) %>% 
   animation_opts(
     frame = 30, 
@@ -60,6 +76,7 @@ p <- dft %>%
   animation_button(
     x = 1, xanchor = "right", y = 0, yanchor = "bottom"
   )
+hide_colorbar(p)
 htmltools::save_html(p, file="/Users/Hasse/Anim/docs/anim.html")
 ```
 <div style="margin-bottom:50px;">
